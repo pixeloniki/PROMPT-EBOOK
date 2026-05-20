@@ -1,0 +1,92 @@
+**Prompt for AI to Generate a Complete Greek Mobile Audiobook App Prototype**
+
+Create a fully functional, responsive, and interactive mobile application prototype for Greek users, designed specifically for smartphone environments (iOS and Android). The app should allow users to browse, discover, purchase, and listen to audiobooks within an immersive, sleek, luxury UI that uses glassmorphism styling, dark themes, and modern visual elements. It must be in Greek language, with all UI text, labels, and content in Greek. The design must incorporate iconography using Lucide icons, not emojis, and the interface should not resemble or copy any ChatGPT or generic website style.
+
+**Technical and Content Requirements:**
+
+1. **General Design & Style:**
+   - Focus on mobile-first, touch-friendly design.
+   - Use a dark color palette with glassmorphism effects for cards, menus, and overlays.
+   - Ensure the UI is minimalistic, elegant, and user-friendly.
+   - Use the Google Fonts: 'DM Serif Display' for headings and 'DM Sans' for body text.
+   - Incorporate smooth animations and transitions for navigation, modals, and interactions.
+   - Icons should be from Lucide icon set, relevant to the context (e.g., home, library, search, play, pause, etc.).
+
+2. **Main Features and Screens:**
+
+   - **Home Screen (Αρχική):**
+     - Sticky header with logo ("audioNest") and user avatar.
+     - Sections:
+       - Featured audiobook (Hero section) with background image, title, description, and buttons ("Άκου τώρα", "Αποθήκευση").
+       - Categories:
+         - "🎧 Συνέχισε να ακούς" with list of purchased or recent audiobooks.
+         - "✨ New & Trending" with a horizontal scroll of books.
+         - "🔥 Best Sellers" with a horizontal scroll.
+         - "📚 Store Βιβλίων" with a horizontal scroll.
+         - "🏆 Top Charts" with a horizontal scroll.
+         - "📖 Είδη" with filter tags: Ρομαντικά, Μυστήριο & Θρίλερ, Μυθιστορήματα & Λογοτεχνία, Μη Μυθοπλασία, Παιδικά, Όλα τα είδη.
+         - "🚀 Έρχονται σύντομα" with upcoming titles.
+     - Footer navigation with three icons: Αρχική, Βιβλιοθήκη, Αναζήτηση.
+
+   - **Library (Βιβλιοθήκη):**
+     - List of acquired audiobooks with cover, title, author.
+     - If empty, show appropriate message with icon.
+
+   - **Search (Αναζήτηση):**
+     - Search bar at top.
+     - Show results dynamically as user types, with cover, title, author.
+
+   - **Product Detail (Σελίδα Προϊόντος):**
+     - Cover image, title, author, narrator, genre, release date.
+     - Star rating display.
+     - Buttons: "Δείγμα" (audio preview), "Αναπαραγωγή" (if owned), or "€[price]" (if not owned).
+     - Book summary with toggle for "Προβολή περισσότερων."
+     - Reviews section with reviewer name and comments.
+     - Recommendations: "Περισσότερα από τον ίδιο συγγραφέα" and "Περισσότερα βιβλία."
+
+   - **Payment Screen (Οθόνη Αγοράς):**
+     - Show product info (cover, title, price).
+     - Payment method selection: current method, change option.
+     - Payment options: Apple Pay, credit card, PayPal.
+     - Form fields for cardholder name and billing address.
+     - Secure checkout button.
+
+   - **Player Screen (Οθόνη Αναπαραγωγής):**
+     - Cover image.
+     - Playback controls: Play/Pause, Next, Previous.
+     - Progress bar with clickable seek.
+     - Playback rate options: 1x, 1.25x, 1.5x, 2x.
+     - Additional controls/icons (moon, etc.).
+
+   - **Profile Screen (Ο λογαριασμός μου):**
+     - User info: Name, phone, email, address.
+     - Navigation options: Στοιχεία Χρήστη, Πορτοφόλι/Πληρωμές, Ειδοποιήσεις, Βοήθεια, Κουπόνια.
+     - Edit user info modal.
+     - Manage payment methods: add credit card, PayPal, Apple Pay.
+
+   - **Additional Screens:**
+     - User Details, Payment Methods, Terms & Conditions, etc.
+
+3. **Functionality:**
+   - All navigation should be via clickable icons/buttons.
+   - Smooth transitions between screens.
+   - Persistent storage of purchased books, user info, payment methods using localStorage.
+   - Audio playback with real-time progress, time display, and controls.
+   - Mini Player at bottom with cover, title, author, playback toggle.
+   - Toast notifications for actions like purchase, save, etc.
+   - Responsive layout optimized for mobile screens.
+   - Icons should be from Lucide set, matching the context (e.g., icons like house, library, search, headphones, star, arrow-left, plus, check-circle, shield-check, etc.).
+
+4. **Additional Details:**
+   - Remove any mention of AFM or tax ID.
+   - No emojis, only Lucide icons.
+   - All text, labels, and placeholder content in Greek.
+   - The code should be clean, well-structured, and modular where possible.
+   - Include comments explaining key sections for clarity.
+   - Ensure all features are functional in the prototype, with clickable links, audio preview, purchase flow, and playback.
+   - The visual style should be modern, luxurious, and suitable for a premium app.
+
+**Output:**
+- Provide the complete HTML code, including embedded CSS and JavaScript, that implements the above specifications. The code must be ready to run in a mobile browser or emulator, showcasing all screens, interactions, and functionality described.
+
+
