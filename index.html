@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>audioNest - Ελληνική εφαρμογή ακουστικών βιβλίων</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans&display=swap" rel="stylesheet" />
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide/dist/lucide.js"></script>
+<style>
+  /* Reset & Base Styles */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: #121212;
+    color: #fff;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* Headings */
+  h1, h2, h3 {
+    font-family: 'DM Serif Display', serif;
+  }
+
+  /* Utility Classes */
+  .hidden { display: none; }
+  .flex { display: flex; }
+  .column { flex-direction: column; }
+  .row { flex-direction: row; }
+  .center { align-items: center; justify-content: center; }
+  .space-between { justify-content: space-between; }
+  .p-4 { padding: 1rem; }
+  .p-2 { padding: 0.5rem; }
+  .m-2 { margin: 0.5rem; }
+  .rounded { border-radius: 12px; }
+  .shadow { box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  .glass {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+  }
+
+  /* Header & Footer */
+  header, footer {
+    padding: 0.75rem 1rem;
+    background: rgba(18, 18, 18, 0.8);
+    backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 10;
+  }
+  header { display: flex; align-items: center; justify-content: space-between; }
+  footer { display: flex; justify-content: space-around; }
+  .logo { font-family: 'DM Serif Display', serif; font-size: 1.5rem; letter-spacing: 2px; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; cursor: pointer; }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* Buttons */
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    transition: background 0.3s;
+  }
+  .btn-primary { background-color: #4f46e5; color: #fff; }
+  .btn-primary:hover { background-color: #4338ca; }
+  .btn-secondary { background-color: transparent; color: #fff; border: 2px solid #fff; }
+  .btn-secondary:hover { background-color: rgba(255,255,255,0.1); }
+
+  /* Sections & Cards */
+  section { margin: 1rem 0; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+  .cards-container {
+    display: flex; overflow-x: auto; padding-bottom: 0.5rem;
+  }
+  .card {
+    min-width: 150px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    margin-right: 1rem;
+    padding: 0.5rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .card:hover { background: rgba(255,255,255,0.1); }
+  .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
+  .card-title { margin-top: 0.5rem; font-weight: bold; font-size: 1rem; }
+  .card-author { font-size: 0.9rem; color: #aaa; }
+
+  /* Hero Section */
+  .hero {
+    position: relative;
+    height: 250px;
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+  }
+  .hero-content {
+    background: rgba(0,0,0,0.4);
+    padding: 1rem;
+    border-radius: 12px;
+  }
+  .hero h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .hero p { font-size: 1rem; margin-bottom: 1rem; }
+  .buttons-group { display: flex; gap: 1rem; }
+  /* Footer Nav Icons */
+  .icon-btn { display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; color: #fff; cursor: pointer; }
+  .icon-btn svg { width: 24px; height: 24px; margin-bottom: 0.25rem; }
+
+  /* Overlay & Modal */
+  .overlay {
+    position: fixed; top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+  }
+  .modal {
+    background: rgba(255,255,255,0.05);
+    padding: 2rem;
+    border-radius: 20px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+  }
+
+  /* Player & Controls */
+  .player {
+    display: flex; flex-direction: column; align-items: center; padding: 1rem;
+  }
+  .player-cover { width: 200px; height: 200px; border-radius: 12px; margin-bottom: 1rem; object-fit: cover; }
+  .controls { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1rem; }
+  .seekbar {
+    width: 90%; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; margin: 1rem 0;
+    cursor: pointer; position: relative;
+  }
+  .seekbar-progress {
+    height: 100%; width: 0%; background: #4f46e5; border-radius: 2px;
+  }
+
+  /* Profile & Settings */
+  .profile-section { padding: 1rem; }
+  .profile-info { margin-bottom: 1rem; }
+  .profile-info p { margin: 0.25rem 0; }
+  .list-item { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #333; cursor: pointer; }
+  /* Toast Notifications */
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: #333; padding: 1rem 1.5rem; border-radius: 8px; opacity: 0; transition: opacity 0.3s;
+    z-index: 200;
+  }
+  .toast.show { opacity: 1; }
+
+  /* Responsive */
+  @media(max-width: 600px){
+    .hero { height: 200px; }
+    .player-cover { width: 150px; height: 150px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Main Container -->
+<div id="app" style="flex:1; display:flex; flex-direction:column;">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">audioNest</div>
+    <div class="avatar" id="userAvatar" title="Ο λογαριασμός μου">
+      <img src="https://via.placeholder.com/40" alt="avatar" />
+    </div>
+  </header>
+
+  <!-- Content -->
+  <div id="content" style="flex:1; overflow-y:auto; padding:1rem;">
+
+    <!-- Screens -->
+    <div id="screen-home">
+      <!-- Hero -->
+      <div class="hero" style="background-image: url('https://images.unsplash.com/photo-1549924231-f129b911e442?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');">
+        <div class="hero-content">
+          <h2>Το Μυστικό του Βυθού</h2>
+          <p>Ένα συναρπαστικό μυθιστόρημα περιπέτειας και μυστηρίου.</p>
+          <div class="buttons-group">
+            <button class="btn btn-primary" id="playHero">Άκου τώρα</button>
+            <button class="btn btn-secondary" id="saveHero">Αποθήκευση</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Categories / Sections -->
+      
+      <!-- Συνέχισε να ακούς -->
+      <section>
+        <div class="section-header">
+          <h3>🎧 Συνέχισε να ακούς</h3>
+        </div>
+        <div class="cards-container" id="continueListening">
+          <!-- Sample Card -->
+          <div class="card" data-id="1" data-title="Ο Κήπος με τα Αγάλματα" data-author="Νίκος Χαραλάμπους" data-img="https://images.unsplash.com/photo-1549887534-7c680845da34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" data-type="owned">
+            <img src="https://images.unsplash.com/photo-1549887534-7c680845da34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" />
+            <div class="card-title">Ο Κήπος με τα Αγάλματα</div>
+            <div class="card-author">Νίκος Χαραλάμπους</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- New & Trending -->
+      <section>
+        <div class="section-header">
+          <h3>✨ Νέα & Δημοφιλή</h3>
+        </div>
+        <div class="cards-container" id="trending">
+          <!-- Sample Book -->
+          <div class="card" data-id="2" data-title="Ο Παλαιός Ναυτικός" data-author="Μαρία Παπαδοπούλου" data-img="https://images.unsplash.com/photo-1549924231-f129b911e442?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80">
+            <img src="https://images.unsplash.com/photo-1549924231-f129b911e442?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" />
+            <div class="card-title">Ο Παλαιός Ναυτικός</div>
+            <div class="card-author">Μαρία Παπαδοπούλου</div>
+          </div>
+          <!-- More cards can be added similarly -->
+        </div>
+      </section>
+
+      <!-- Best Sellers -->
+      <section>
+        <div class="section-header">
+          <h3>🔥 Καλύτερα σε πωλήσεις</h3>
+        </div>
+        <div class="cards-container" id="bestsellers">
+          <!-- Sample Book -->
+          <div class="card" data-id="3" data-title="Το Πνεύμα της Θάλασσας" data-author="Γιάννης Βασιλείου" data-img="https://images.unsplash.com/photo-1549887534-7c680845da34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80">
+            <img src="https://images.unsplash.com/photo-1549887534-7c680845da34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" />
+            <div class="card-title">Το Πνεύμα της Θάλασσας</div>
+            <div class="card-author">Γιάννης Βασιλείου</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Store Βιβλίων -->
+      <section>
+        <div class="section-header">
+          <h3>📚 Κατάστημα Βιβλίων</h3>
+        </div>
+        <div class="cards-container" id="storeBooks">
+          <!-- Sample Book -->
+          <div class="card" data-id="4" data-title="Ο Χρόνος των Ονείρων" data-author="Ελένη Αθανασίου" data-img="https://images.unsplash.com/photo-1549887534-7c680845da34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" data-price="9.99" data-owned="false">
+            <img src="https://images.unsplash.com/photo-1549887534-7c680845da34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" />
+            <div class="card-title">Ο Χρόνος των Ονείρων</div>
+            <div class="card-author">Ελένη Αθανασίου</div>
+            <div class="card-price">€9.99</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Top Charts -->
+      <section>
+        <div class="section-header">
+          <h3>🏆 Top Charts</h3>
+        </div>
+        <div class="cards-container" id="topCharts">
+          <!-- Sample Book -->
+          <div class="card" data-id="5" data-title="Μοιραίο Μυστικό" data-author="Κώστας Λάμπρου" data-img="https://images.unsplash.com/photo-1549887534-7c680845da34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80">
+            <img src="https://images.unsplash.com/photo-1549887534-7c680845da34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" />
+            <div class="card-title">Μοιραίο Μυστικό</div>
+            <div class="card-author">Κώστας Λάμπρου</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Είδη -->
+      <section>
+        <div class="section-header">
+          <h3>📖 Είδη</h3>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+          <button class="btn btn-secondary" data-filter="Ρομαντικά">Ρομαντικά</button>
+          <button class="btn btn-secondary" data-filter="Μυστήριο & Θρίλερ">Μυστήριο & Θρίλερ</button>
+          <button class="btn btn-secondary" data-filter="Μυθιστορήματα & Λογοτεχνία">Μυθιστορήματα & Λογοτεχνία</button>
+          <button class="btn btn-secondary" data-filter="Μη Μυθοπλασία">Μη Μυθοπλασία</button>
+          <button class="btn btn-secondary" data-filter="Παιδικά">Παιδικά</button>
+          <button class="btn btn-secondary" data-filter="Όλα τα είδη">Όλα τα είδη</button>
+        </div>
+      </section>
+
+      <!-- Έρχονται σύντομα -->
+      <section>
+        <div class="section-header">
+          <h3>🚀 Έρχονται σύντομα</h3>
+        </div>
+        <div class="cards-container" id="comingSoon">
+          <!-- Sample -->
+          <div class="card" data-id="6" data-title="Νέο Μυθιστόρημα" data-author="Αντώνης Νικολάου" data-img="https://images.unsplash.com/photo-1549887534-7c680845da34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80">
+            <img src="https://images.unsplash.com/photo-1549887534-7c680845da34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" />
+            <div class="card-title">Νέο Μυθιστόρημα</div>
+            <div class="card-author">Αντώνης Νικολάου</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Βιβλιοθήκη -->
+    <div id="screen-library" class="hidden">
+      <h2>Βιβλιοθήκη</h2>
+      <div id="libraryList">
+        <!-- Filled dynamically -->
+        <p style="text-align:center; margin-top:2rem;">Δεν έχετε αγοράσει ακόμα βιβλία.</p>
+      </div>
+    </div>
+
+    <!-- Αναζήτηση -->
+    <div id="screen-search" class="hidden">
+      <h2>Αναζήτηση</h2>
+      <input type="text" id="searchInput" placeholder="Πληκτρολογήστε τίτλο ή συγγραφέα" style="width:100%; padding:0.75rem; border-radius:8px; border:none; margin-bottom:1rem; font-family:'DM Sans'; font-size:1rem;">
+      <div id="searchResults" style="display:flex; flex-direction:column; gap:1rem;">
+        <!-- Results appear here -->
+      </div>
+    </div>
+
+    <!-- Σελίδα Προϊόντος -->
+    <div id="screen-product" class="hidden">
+      <button class="btn btn-secondary" style="margin-bottom:1rem;" id="backToHome2"><i data-lucide="arrow-left"></i> Πίσω</button>
+      <div style="display:flex; gap:1rem;">
+        <img id="productCover" src="" alt="cover" style="width:150px; height:200px; border-radius:8px; object-fit:cover;">
+        <div style="flex:1;">
+          <h2 id="productTitle"></h2>
+          <p><strong>Συγγραφέας:</strong> <span id="productAuthor"></span></p>
+          <p><strong>Αφηγητής:</strong> <span id="productNarrator">Νίκος Παπαδόπουλος</span></p>
+          <p><strong>Είδος:</strong> <span id="productGenre">Μυθιστόρημα</span></p>
+          <p><strong>Ημερομηνία κυκλοφορίας:</strong> <span id="productDate">2023</span></p>
+          <div id="productRating" style="margin:0.5rem 0;"></div>
+          <div style="margin-top:1rem; display:flex; gap:1rem;">
+            <button class="btn btn-primary" id="sampleBtn"><i data-lucide="headphones"></i> Δείγμα</button>
+            <button class="btn btn-primary" id="playBtn">Αναπαραγωγή</button>
+          </div>
+          <div style="margin-top:1rem;">
+            <button class="btn btn-secondary" id="toggleSummary">Προβολή περισσότερων</button>
+            <div id="bookSummary" style="max-height:100px; overflow:hidden; margin-top:0.5rem;">
+              <p>Αυτή είναι η περίληψη του βιβλίου. Πατήστε το κουμπί για να δείτε περισσότερα.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Reviews -->
+      <section style="margin-top:2rem;">
+        <h3>Κριτικές</h3>
+        <div id="reviews">
+          <div style="border-top:1px solid #333; padding-top:0.5rem;">
+            <p><strong>Μαρία:</strong> Πολύ καλό βιβλίο, απόλαυσα κάθε στιγμή!</p>
+          </div>
+          <div style="border-top:1px solid #333; padding-top:0.5rem;">
+            <p><strong>Γιώργος:</strong> Θα το ξανακούσω σίγουρα.</p>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Recommendations -->
+      <section style="margin-top:2rem;">
+        <h3>Περισσότερα από τον ίδιο συγγραφέα</h3>
+        <div class="cards-container" id="moreFromAuthor">
+          <!-- Sample -->
+          <div class="card" data-id="7" data-title="Ονειρεμένος Κόσμος" data-author="Νίκος Χαραλάμπους" data-img="https://images.unsplash.com/photo-1549887534-7c680845da34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80">
+            <img src="https://images.unsplash.com/photo-1549887534-7c680845da34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" />
+            <div class="card-title">Ονειρεμένος Κόσμος</div>
+            <div class="card-author">Νίκος Χαραλάμπους</div>
+          </div>
+        </div>
+        <h3 style="margin-top:1rem;">Περισσότερα βιβλία</h3>
+        <div class="cards-container" id="moreBooks">
+          <!-- Sample -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Οθόνη Αγοράς -->
+    <div id="screen-payment" class="hidden">
+      <button class="btn btn-secondary" style="margin-bottom:1rem;" id="backToProduct"><i data-lucide="arrow-left"></i> Πίσω</button>
+      <h2>Αγορά: <span id="payTitle"></span></h2>
+      <div style="display:flex; gap:1rem; margin-top:1rem;">
+        <img id="payCover" src="" alt="cover" style="width:120px; height:160px; border-radius:8px; object-fit:cover;">
+        <div>
+          <p><strong>Τιμή:</strong> <span id="payPrice"></span></p>
+          <p><strong>Τρέχων μέθοδος:</strong> <span id="currentMethod">Κάρτα</span></p>
+          <button class="btn btn-secondary" id="changeMethodBtn">Αλλαγή</button>
+        </div>
+      </div>
+      <h3 style="margin-top:1rem;">Τρόποι Πληρωμής</h3>
+      <div style="display:flex; flex-direction:column; gap:0.75rem;">
+        <button class="btn btn-primary" id="payApplePay"><i data-lucide="credit-card"></i> Apple Pay</button>
+        <button class="btn btn-primary" id="payCreditCard"><i data-lucide="credit-card"></i> Πιστωτική Κάρτα</button>
+        <button class="btn btn-primary" id="payPayPal"><i data-lucide="paypal"></i> PayPal</button>
+      </div>
+      
+      <!-- Card Payment Form -->
+      <div id="cardFormContainer" class="hidden" style="margin-top:1rem;">
+        <h4>Πληροφορίες Πιστωτικής Κάρτας</h4>
+        <input type="text" placeholder="Όνομα Κατόχου" id="cardHolder" style="width:100%; padding:0.75rem; border-radius:8px; border:none; margin-bottom:0.75rem;">
+        <input type="text" placeholder="Αριθμός Κάρτας" id="cardNumber" style="width:100%; padding:0.75rem; border-radius:8px; border:none; margin-bottom:0.75rem;">
+        <div style="display:flex; gap:0.75rem;">
+          <input type="text" placeholder="Μήνας λήξης" id="cardExp" style="flex:1; padding:0.75rem; border-radius:8px; border:none;">
+          <input type="text" placeholder="CVV" id="cardCVV" style="flex:1; padding:0.75rem; border-radius:8px; border:none;">
+        </div>
+        <button class="btn btn-primary" style="margin-top:1rem;" id="payCardBtn">Ολοκλήρωση</button>
+      </div>
+    </div>
+
+    <!-- Οθόνη Αναπαραγωγής -->
+    <div id="screen-player" class="hidden">
+      <button class="btn btn-secondary" style="margin-bottom:1rem;" id="backToProduct2"><i data-lucide="arrow-left"></i> Πίσω</button>
+      <div class="player">
+        <img id="playerCover" src="" alt="cover" class="player-cover" />
+        <h3 id="playerTitle"></h3>
+        <p><strong>Αφηγητής:</strong> <span id="playerNarrator"></span></p>
+        <div class="seekbar" id="seekbar">
+          <div class="seekbar-progress" id="seekbarProgress"></div>
+        </div>
+        <div class="controls">
+          <button class="btn" id="prevBtn"><i data-lucide="skip-back"></i></button>
+          <button class="btn btn-primary" id="playPauseBtn"><i data-lucide="pause"></i></button>
+          <button class="btn" id="nextBtn"><i data-lucide="skip-forward"></i></button>
+        </div>
+        <div style="margin-top:1rem; display:flex; gap:1rem; align-items:center;">
+          <span>Ταχύτητα:</span>
+          <button class="btn btn-secondary speed-btn" data-rate="1">1x</button>
+          <button class="btn btn-secondary speed-btn" data-rate="1.25">1.25x</button>
+          <button class="btn btn-secondary speed-btn" data-rate="1.5">1.5x</button>
+          <button class="btn btn-secondary speed-btn" data-rate="2">2x</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Οθόνη Προφίλ -->
+    <div id="screen-profile" class="hidden">
+      <h2>Ο λογαριασμός μου</h2>
+      <div class="profile-section">
+        <div class="profile-info">
+          <p><strong>Όνομα:</strong> Γιάννης Παπαδόπουλος</p>
+          <p><strong>Τηλέφωνο:</strong> 6900000000</p>
+          <p><strong>Email:</strong> giannis@example.com</p>
+          <p><strong>Διεύθυνση:</strong> Αθήνα, Ελλάδα</p>
+        </div>
+        <button class="btn btn-secondary" id="editProfile">Επεξεργασία</button>
+      </div>
+      <div class="profile-section">
+        <h3>Πορτοφόλι / Πληρωμές</h3>
+        <div class="list-item" id="paymentMethods">
+          <span>Πιστωτική Κάρτα **** 1234</span>
+          <button class="btn btn-secondary btn-sm" id="editPayment">Επεξεργασία</button>
+        </div>
+        <button class="btn btn-secondary" id="addPaymentMethod" style="margin-top:0.75rem;">Προσθήκη Πληρωμής</button>
+      </div>
+      <div class="profile-section">
+        <h3>Ειδοποιήσεις</h3>
+        <button class="btn btn-secondary" id="notificationsBtn">Διαχείριση Ειδοποιήσεων</button>
+      </div>
+      <div class="profile-section">
+        <h3>Βοήθεια</h3>
+        <button class="btn btn-secondary" id="helpBtn">Ερώτηση</button>
+      </div>
+      <div class="profile-section">
+        <h3>Κουπόνια</h3>
+        <button class="btn btn-secondary" id="couponsBtn">Δείτε κουπόνια</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Mini Player -->
+  <div id="miniPlayer" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); padding:0.5rem 1rem; display:flex; align-items:center; justify-content:space-between; position:fixed; bottom:60px; left:0; right:0; z-index: 100;">
+    <img id="miniCover" src="" alt="cover" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
+    <div style="flex:1; margin-left:0.5rem;">
+      <p id="miniTitle" style="margin:0; font-weight:bold;">Τίτλος</p>
+      <p id="miniAuthor" style="margin:0; font-size:0.9rem; color:#aaa;">Συγγραφέας</p>
+    </div>
+    <button id="miniPlayBtn" style="background:none; border:none; cursor:pointer; color:#fff;"><i data-lucide="pause"></i></button>
+  </div>
+
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+<!-- Scripts -->
+<script>
+  // Initialize lucide icons
+  lucide.createIcons();
+
+  // Utility: Show toast
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// State variables
+let currentScreen = 'home'; // home, library, search, product, payment, player, profile
+let selectedProduct = null;
+let isPlaying = false;
+let audio = new Audio();
+let playbackRate = 1;
+let progressInterval = null;
+
+// Sample Data (can be extended)
+const products = [
+  {
+    id:'1',
+    title:'Ο Κήπος με τα Αγάλματα',
+    author:'Νίκος Χαραλάμπους',
+    narrator:'Νίκος Παπαδόπουλος',
+    genre:'Μυθιστόρημα',
+    date:'2023',
+    img:'https://images.unsplash.com/photo-1549887534-7c680845da34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    price:'9.99',
+    owned:true,
+    summary:'Αυτή είναι η περίληψη του βιβλίου. Πατήστε το κουμπί για να δείτε περισσότερα.',
+    reviews:[
+      {name:'Μαρία', comment:'Πολύ καλό βιβλίο, απόλαυσα κάθε στιγμή!'},
+      {name:'Γιώργος', comment:'Θα το ξανακούσω σίγουρα.'}
+    ],
+    moreBooks:[
+      {id:'7', title:'Ονειρεμένος Κόσμος', author:'Νίκος Χαραλάμπους', img:'https://images.unsplash.com/photo-1549887534-7c680845da34?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
+    ]
+  },
+  // Add more products as needed
+];
+
+// Initialize app
+window.onload = () => {
+  loadScreen('home');
+  setupEventListeners();
+  loadLibrary();
+  loadProfile();
+};
+
+// Load specific screen
+function loadScreen(screen) {
+  // Hide all
+  document.querySelectorAll('#content > div').forEach(div => div.classList.add('hidden'));
+  // Show selected
+  document.getElementById(`screen-${screen}`).classList.remove('hidden');
+  currentScreen = screen;
+  // Additional setup
+  if(screen==='home'){ document.getElementById('footer').style.display='flex'; }
+  else { document.getElementById('footer').style.display='none'; }
+}
+
+// Setup Event Listeners
+function setupEventListeners() {
+  // Avatar click -> Profile
+  document.getElementById('userAvatar').onclick = () => loadScreen('profile');
+
+  // Navigation icons
+  document.querySelectorAll('#footer .icon-btn').forEach(btn => {
+    btn.onclick = () => {
+      const target = btn.dataset.target;
+      if(target==='home') loadScreen('home');
+      if(target==='library') { loadScreen('library'); loadLibrary(); }
+      if(target==='search') { loadScreen('search'); }
+    };
+  });
+  // For this code, manually add footer buttons
+  // Create footer dynamically
+  createFooter();
+
+  // Home screen interactions
+  document.querySelectorAll('#content #screen-home .card').forEach(card => {
+    card.onclick = () => {
+      openProduct(card.dataset);
+    };
+  });
+
+  // Search input
+  document.getElementById('searchInput').oninput = (e) => {
+    const query = e.target.value.toLowerCase();
+    const resultsDiv = document.getElementById('searchResults');
+    resultsDiv.innerHTML = '';
+    products.forEach(p => {
+      if(p.title.toLowerCase().includes(query) || p.author.toLowerCase().includes(query)){
+        const div = document.createElement('div');
+        div.className='card';
+        div.dataset.id=p.id;
+        div.innerHTML=`
+          <img src="${p.img}" />
+          <div class="card-title">${p.title}</div>
+          <div class="card-author">${p.author}</div>
+        `;
+        div.onclick=()=>{ openProduct(p); loadScreen('product'); };
+        resultsDiv.appendChild(div);
+      }
+    });
+  };
+
+  // Sample & Play buttons
+  document.getElementById('sampleBtn').onclick=() => {
+    // Play sample
+    playAudio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
+  };
+  document.getElementById('playBtn').onclick=()=>{
+    if(selectedProduct){
+      if(selectedProduct.owned){
+        openPlayer(selectedProduct);
+        loadScreen('player');
+      } else {
+        openPayment(selectedProduct);
+        loadScreen('payment');
+      }
+    }
+  };
+
+  // Back buttons
+  document.getElementById('backToHome2').onclick=()=>loadScreen('home');
+  document.getElementById('backToProduct').onclick=()=>loadScreen('product');
+  document.getElementById('backToProduct2').onclick=()=>loadScreen('product');
+
+  // Toggle summary
+  document.getElementById('toggleSummary').onclick=()=>{
+    const summaryDiv = document.getElementById('bookSummary');
+    if(summaryDiv.style.maxHeight && summaryDiv.style.maxHeight !== 'none') {
+      summaryDiv.style.maxHeight='none';
+      document.getElementById('toggleSummary').textContent='Λιγότερα';
+    } else {
+      summaryDiv.style.maxHeight='100px';
+      document.getElementById('toggleSummary').textContent='Προβολή περισσότερων';
+    }
+  };
+
+  // Play/Pause in Player
+  document.getElementById('playPauseBtn').onclick=()=>{
+    if(isPlaying){
+      pauseAudio();
+    } else {
+      resumeAudio();
+    }
+  };
+  // Previous & Next
+  document.getElementById('prevBtn').onclick=()=>{
+    // Placeholder: restart
+    if(audio.src) { audio.currentTime=0; }
+  };
+  document.getElementById('nextBtn').onclick=()=>{
+    // Placeholder: stop
+    pauseAudio();
+  };
+
+  // Speed buttons
+  document.querySelectorAll('.speed-btn').forEach(btn => {
+    btn.onclick=()=>{
+      playbackRate=parseFloat(btn.dataset.rate);
+      audio.playbackRate=playbackRate;
+      showToast(`Ταχύτητα: ${playbackRate}x`);
+    };
+  });
+
+  // Mini Player
+  document.getElementById('miniPlayBtn').onclick=()=>{
+    if(isPlaying){ pauseAudio(); } else { resumeAudio(); }
+  };
+
+  // Profile buttons
+  document.getElementById('editProfile').onclick=()=> {
+    alert('Επεξεργασία στοιχείων χρήστη (λειτουργία προς ανάπτυξη)');
+  };
+  document.getElementById('addPaymentMethod').onclick=()=> {
+    alert('Προσθήκη τρόπου πληρωμής (λειτουργία προς ανάπτυξη)');
+  };
+  document.getElementById('editPayment').onclick=()=> {
+    alert('Επεξεργασία τρόπου πληρωμής (λειτουργία προς ανάπτυξη)');
+  };
+
+  // Payment method change
+  document.getElementById('changeMethodBtn').onclick=()=>{
+    alert('Αλλαγή τρόπου πληρωμής (λειτουργία προς ανάπτυξη)');
+  };
+
+  // Payment options
+  document.getElementById('payApplePay').onclick=()=>{ processPayment('Apple Pay'); };
+  document.getElementById('payCreditCard').onclick=()=>{ showPaymentForm(); };
+  document.getElementById('payPayPal').onclick=()=>{ processPayment('PayPal'); };
+
+  // Pay Card
+  document.getElementById('payCardBtn').onclick=()=> {
+    // Here you would process payment
+    showToast('Η αγορά ολοκληρώθηκε!');
+    // Save purchase
+    selectedProduct.owned=true;
+    saveLibrary();
+    loadScreen('library');
+  };
+
+  // Playback controls
+  document.getElementById('seekbar').onclick=(e)=>{
+    const rect=e.target.getBoundingClientRect();
+    const clickX=e.clientX-rect.left;
+    const percent=clickX/rect.width;
+    audio.currentTime=percent*audio.duration;
+    updateProgress();
+  };
+
+  // Footer buttons
+  // Create footer dynamically
+  function createFooter() {
+    const footer = document.createElement('footer');
+    footer.id='footer';
+    footer.innerHTML=`
+      <div class="icon-btn" data-target="home" title="Αρχική"><i data-lucide="home"></i></div>
+      <div class="icon-btn" data-target="library" title="Βιβλιοθήκη"><i data-lucide="book"></i></div>
+      <div class="icon-btn" data-target="search" title="Αναζήτηση"><i data-lucide="search"></i></div>
+    `;
+    document.body.appendChild(footer);
+    // Add event
+    footer.querySelectorAll('.icon-btn').forEach(btn => {
+      btn.onclick=()=> {
+        if(btn.dataset.target==='home') { loadScreen('home'); }
+        if(btn.dataset.target==='library') { loadScreen('library'); loadLibrary(); }
+        if(btn.dataset.target==='search') { loadScreen('search'); }
+      };
+    });
+  }
+}
+
+// Open product detail
+function openProduct(productData) {
+  selectedProduct=productData;
+  document.getElementById('productCover').src=productData.img;
+  document.getElementById('productTitle').textContent=productData.title;
+  document.getElementById('productAuthor').textContent=productData.author;
+  document.getElementById('productNarrator').textContent=productData.narrator || 'Νίκος Παπαδόπουλος';
+  document.getElementById('productGenre').textContent=productData.genre;
+  document.getElementById('productDate').textContent=productData.date;
+  // Rating stars
+  document.getElementById('productRating').innerHTML='';
+  for(let i=0; i<5; i++){
+    const star= document.createElement('i');
+    star.setAttribute('data-lucide','star');
+    star.style.color='#ffd700';
+    document.getElementById('productRating').appendChild(star);
+  }
+  lucide.createIcons();
+
+  // Add buttons
+  document.getElementById('sampleBtn').onclick=()=>{
+    playAudio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
+  };
+  document.getElementById('playBtn').textContent=productData.owned?'Αναπαραγωγή':'Αγορά';
+  document.getElementById('playBtn').onclick=()=>{
+    if(productData.owned){
+      openPlayer(productData);
+      loadScreen('player');
+    } else {
+      openPayment(productData);
+      loadScreen('payment');
+    }
+  };
+}
+
+// Play audio
+function playAudio(src) {
+  if(audio) { audio.pause(); }
+  audio=new Audio(src);
+  audio.playbackRate=playbackRate;
+  audio.play();
+  isPlaying=true;
+  document.getElementById('playPauseBtn').innerHTML='<i data-lucide="pause"></i>';
+  document.getElementById('miniPlayBtn').innerHTML='<i data-lucide="pause"></i>';
+  document.getElementById('playerCover').src=selectedProduct.img;
+  document.getElementById('miniCover').src=selectedProduct.img;
+  document.getElementById('miniTitle').textContent=selectedProduct.title;
+  document.getElementById('miniAuthor').textContent=selectedProduct.author;
+  // Update progress
+  if(progressInterval) clearInterval(progressInterval);
+  progressInterval=setInterval(updateProgress, 500);
+  // Audio end
+  audio.onended=()=>{
+    isPlaying=false;
+    document.getElementById('playPauseBtn').innerHTML='<i data-lucide="play"></i>';
+    document.getElementById('miniPlayBtn').innerHTML='<i data-lucide="play"></i>';
+    clearInterval(progressInterval);
+  };
+}
+
+// Pause audio
+function pauseAudio() {
+  if(audio){ audio.pause(); isPlaying=false; }
+  document.getElementById('playPauseBtn').innerHTML='<i data-lucide="play"></i>';
+  document.getElementById('miniPlayBtn').innerHTML='<i data-lucide="play"></i>';
+}
+
+// Resume audio
+function resumeAudio() {
+  if(audio){ audio.play(); isPlaying=true; }
+  document.getElementById('playPauseBtn').innerHTML='<i data-lucide="pause"></i>';
+  document.getElementById('miniPlayBtn').innerHTML='<i data-lucide="pause"></i>';
+}
+
+// Update progress bar
+function updateProgress() {
+  if(!audio.duration) return;
+  const percent=(audio.currentTime/audio.duration)*100;
+  document.getElementById('seekbarProgress').style.width=percent+'%';
+}
+
+// Open player screen
+function openPlayer(product) {
+  document.getElementById('playerCover').src=product.img;
+  document.getElementById('playerTitle').textContent=product.title;
+  document.getElementById('playerNarrator').textContent=product.narrator || 'Νίκος Παπαδόπουλος';
+  // Load audio (placeholder)
+  // For demo, use sample mp3
+  playAudio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
+}
+
+// Open payment screen
+function openPayment(product) {
+  document.getElementById('payTitle').textContent=product.title;
+  document.getElementById('payCover').src=product.img;
+  document.getElementById('payPrice').textContent=product.price;
+  document.getElementById('currentMethod').textContent='Κάρτα';
+  // Reset payment form
+  document.getElementById('cardFormContainer').classList.add('hidden');
+}
+
+// Show payment form
+function showPaymentForm() {
+  document.getElementById('cardFormContainer').classList.remove('hidden');
+}
+
+// Process payment
+function processPayment(method) {
+  showToast(`Πληρωμή μέσω ${method} επιτυχής!`);
+  // Save purchase
+  if(selectedProduct){
+    selectedProduct.owned=true;
+    saveLibrary();
+  }
+  loadScreen('library');
+}
+
+// Load library
+function loadLibrary() {
+  const libDiv=document.getElementById('libraryList');
+  libDiv.innerHTML='';
+  const ownedBooks=products.filter(p=>p.owned);
+  if(ownedBooks.length===0){
+    libDiv.innerHTML='<p style="text-align:center; margin-top:2rem;">Δεν έχετε αγοράσει ακόμα βιβλία.</p>';
+    return;
+  }
+  ownedBooks.forEach(p=>{
+    const div=document.createElement('div');
+    div.className='card';
+    div.dataset.id=p.id;
+    div.innerHTML=`
+      <img src="${p.img}" />
+      <div class="card-title">${p.title}</div>
+      <div class="card-author">${p.author}</div>
+    `;
+    div.onclick=()=>{ openProduct(p); loadScreen('product'); };
+    libDiv.appendChild(div);
+  });
+}
+
+// Load profile info
+function loadProfile() {
+  // For demo, static info
+}
+
+// Open mini player
+function openPlayer(product) {
+  document.getElementById('playerCover').src=product.img;
+  document.getElementById('playerTitle').textContent=product.title;
+  document.getElementById('playerNarrator').textContent=product.narrator || 'Νίκος Παπαδόπουλος';
+  // Load sample mp3
+  playAudio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
+  loadScreen('player');
+}
+
+// Save library to localStorage (placeholder)
+function saveLibrary() {
+  localStorage.setItem('library', JSON.stringify(products));
+}
+
+// Load library from localStorage (placeholder)
+function loadLibrary() {
+  const data=localStorage.getItem('library');
+  if(data){ /* parse and update products */ }
+  // For demo, populate
+  const libDiv=document.getElementById('libraryList');
+  libDiv.innerHTML='';
+  const ownedBooks=products.filter(p=>p.owned);
+  if(ownedBooks.length===0){
+    libDiv.innerHTML='<p style="text-align:center; margin-top:2rem;">Δεν έχετε αγοράσει ακόμα βιβλία.</p>';
+    return;
+  }
+  ownedBooks.forEach(p=>{
+    const div=document.createElement('div');
+    div.className='card';
+    div.dataset.id=p.id;
+    div.innerHTML=`
+      <img src="${p.img}" />
+      <div class="card-title">${p.title}</div>
+      <div class="card-author">${p.author}</div>
+    `;
+    div.onclick=()=>{ openProduct(p); loadScreen('product'); };
+    libDiv.appendChild(div);
+  });
+}
+</script>
+</body>
+</html>
